@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { SubmitButton } from "@/components/submit-button";
 import translate from "@/actions/translate";
 import { TranslationLanguages } from "@/types";
 
@@ -141,10 +142,9 @@ export const TranslationForm = ({
           </div>
         </div>
 
-        <div>
-          <button type="submit" ref={submitBtnRef}>
-            Submit
-          </button>
+        <div className="mt-5 flex justify-end">
+          <SubmitButton disabled={!input} />
+          <button type="submit" ref={submitBtnRef} hidden />
         </div>
       </form>
     </div>

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import axios from "axios";
 import { v4 } from "uuid";
@@ -76,6 +77,8 @@ async function translate(prevState: State, formData: FormData) {
   } catch (error) {
     console.error("Error adding translation to user:", error);
   }
+
+  revalidateTag("translationHistory");
 
   return {
     ...prevState,

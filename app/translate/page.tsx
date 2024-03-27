@@ -1,7 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 
-import { TranslationForm } from "@/components/TranslationForm";
 import { TranslationLanguages } from "@/types";
+import { TranslationForm } from "@/components/translation-form";
+import { TranslationHistory } from "@/components/translation-history";
 
 const TranslatePage = async () => {
   auth().protect();
@@ -23,7 +24,8 @@ const TranslatePage = async () => {
   return (
     <div className="px-10 xl:mb-20">
       <TranslationForm languages={languages} />
-      {/* TranslationHistory */}
+
+      <TranslationHistory />
     </div>
   );
 };

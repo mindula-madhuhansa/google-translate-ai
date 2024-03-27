@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { IUser, Translation } from "@/types";
+import { ITranslation, IUser, Translation } from "@/types";
 import connectDB from "@/mongodb/db";
 import { userSchema } from "@/mongodb/schemas";
 
@@ -38,6 +38,55 @@ export async function addOrUpdateUser(
     return user;
   } catch (error) {
     console.error("Error adding or updating user:", error);
+    throw error;
+  }
+}
+
+export async function getTranslations(
+  userId: string
+): Promise<Array<ITranslation>> {
+  await connectDB();
+
+  try {
+    const user: IUser | null = await User.findOne({ userId: userId });
+    if (user) {
+      // Sort translations by timestamp in descending order
+      user.translations.sort(
+        (a: ITranslation, b: ITranslation) =>
+          b.timestamp.getTime() - a.timestamp.getTime()
+      );
+
+      return user.translations;
+    } else {
+      console.log(`User with userId ${userId} not found.`);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error retrieving translations:", error);
+    throw error;
+  }
+}
+
+export async function removeTranslation(
+  userId: string,
+  translationId: string
+): Promise<IUser> {
+  await connectDB();
+
+  try {
+    const user: IUser | null = await User.findOneAndUpdate(
+      { userId: userId },
+      { $pull: { translations: { _id: translationId } } },
+      { new: true }
+    );
+    if (!user) {
+      throw new Error("User not found.");
+    }
+    console.log("Translation removed:", user);
+
+    return user;
+  } catch (error) {
+    console.error("Error removing translation:", error);
     throw error;
   }
 }
