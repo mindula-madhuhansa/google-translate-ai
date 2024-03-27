@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 
 import { TranslationForm } from "@/components/TranslationForm";
+import { TranslationLanguages } from "@/types";
 
 const TranslatePage = async () => {
   auth().protect();

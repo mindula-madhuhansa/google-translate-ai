@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import translate from "@/actions/translate";
+import { TranslationLanguages } from "@/types";
 
 export const initialState = {
   inputLanguage: "auto",
