@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import Image from "next/image";
+import { Volume2Icon } from "lucide-react";
 
+import translate from "@/actions/translate";
+import { TranslationLanguages } from "@/types";
+import { mimeType } from "@/constants";
 import {
   Select,
   SelectContent,
@@ -15,8 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SubmitButton } from "@/components/submit-button";
-import translate from "@/actions/translate";
-import { TranslationLanguages } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Recorder } from "@/components/recorder";
 
 export const initialState = {
   inputLanguage: "auto",
@@ -53,25 +57,53 @@ export const TranslationForm = ({
     }
   }, [state]);
 
+  const playAudio = async () => {
+    const synth = window.speechSynthesis;
+
+    if (!output || !synth) return;
+
+    const wordsToSay = new SpeechSynthesisUtterance(output);
+    synth.speak(wordsToSay);
+  };
+
+  const uploadAudio = async (blob: Blob) => {
+    const file = new File([blob], mimeType, { type: mimeType });
+
+    const formData = new FormData();
+    formData.append("audio", file);
+
+    const response = await fetch("/transcribeAudio", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.text) {
+      setInput(data.text);
+    }
+  };
+
   return (
     <div>
-      <div className="flex space-x-2">
-        <div className="flex items-center group cursor-pointer border rounded-md w-fit px-3 py-2 bg-[#E7F0FE] mb-5">
-          <Image
-            src="/translate_text.png"
-            alt="Text Translate"
-            width={30}
-            height={30}
-          />
-          <p className="text-sm font-medium text-blue-500 group-hover:underline ml-2 mt-1">
-            Text
-          </p>
+      <form action={formAction}>
+        <div className="flex space-x-2">
+          <div className="flex items-center group cursor-pointer border rounded-md w-fit px-3 py-2 bg-[#E7F0FE] mb-5">
+            <Image
+              src="/translate_text.png"
+              alt="Text Translate"
+              width={30}
+              height={30}
+            />
+            <p className="text-sm font-medium text-blue-500 group-hover:underline ml-2 mt-1">
+              Text
+            </p>
+          </div>
+
+          {/* Recorder */}
+          <Recorder uploadAudio={uploadAudio} />
         </div>
 
-        {/* Recorder */}
-      </div>
-
-      <form action={formAction}>
         <div className="flex flex-col space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2">
           <div className="flex-1 space-y-2">
             <Select name="inputLanguage" defaultValue="auto">
@@ -108,29 +140,45 @@ export const TranslationForm = ({
           </div>
 
           <div className="flex-1 space-y-2">
-            <Select name="outputLanguage" defaultValue="ko">
-              <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
-                <SelectValue placeholder="Select a language" />
-              </SelectTrigger>
+            <div className="flex items-center justify-between">
+              <Select name="outputLanguage" defaultValue="ko">
+                <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
+                  <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
 
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Want us to figure it out?</SelectLabel>
-                  <SelectItem key="auto" value="auto">
-                    Detect language
-                  </SelectItem>
-                </SelectGroup>
-
-                <SelectGroup>
-                  <SelectLabel>Language</SelectLabel>
-                  {Object.entries(languages.translation).map(([key, value]) => (
-                    <SelectItem key={key} value={key}>
-                      {value.name}
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Want us to figure it out?</SelectLabel>
+                    <SelectItem key="auto" value="auto">
+                      Detect language
                     </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+                  </SelectGroup>
+
+                  <SelectGroup>
+                    <SelectLabel>Language</SelectLabel>
+                    {Object.entries(languages.translation).map(
+                      ([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value.name}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={playAudio}
+                disabled={!output}
+              >
+                <Volume2Icon
+                  size={24}
+                  className="text-blue-500 cursor-pointer disabled:cursor-not-allowed"
+                />
+              </Button>
+            </div>
 
             <Textarea
               name="output"
