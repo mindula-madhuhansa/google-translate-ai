@@ -12,17 +12,15 @@ export async function POST(request: NextRequest) {
     process.env.AZURE_DEPLOYMENT_NAME === undefined
   ) {
     console.error("Azure credentials not set");
-    return {
-      sender: "",
-      response: "Azure credentials not set",
-    };
+    return NextResponse.json({
+      error: "Azure credentials not set",
+    });
   }
 
   if (file.size === 0) {
-    return {
-      sender: "",
-      response: "No audio file provided",
-    };
+    return NextResponse.json({
+      error: "No audio file provided",
+    });
   }
 
   console.log(">>", file);

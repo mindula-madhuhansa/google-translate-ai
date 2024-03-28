@@ -7,6 +7,12 @@ import Link from "next/link";
 export default function Home() {
   const { userId } = auth();
 
+  const url = `${
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : process.env.VERCEL_URL
+  }/translate`;
+
   return (
     <main className="flex flex-col items-center justify-center p-10">
       <h1 className="text-3xl lg:text-6xl text-center pb-10 mb-5">
@@ -17,18 +23,14 @@ export default function Home() {
 
       {userId ? (
         <Link
-          href="/translate"
+          href={url}
           className="bg-blue-500 hover:bg-blue-600 w-full mt-10 lg:w-fit p-5 rounded-md text-white text-center cursor-pointer"
         >
           Translate Now
         </Link>
       ) : (
         <Button className="bg-blue-500 hover:bg-blue-600 w-full mt-10 lg:w-fit p-5 ">
-          <SignInButton
-            afterSignInUrl="/translate"
-            afterSignUpUrl="/translate"
-            mode="modal"
-          >
+          <SignInButton afterSignInUrl={url} afterSignUpUrl={url} mode="modal">
             Sign In to Get Translating
           </SignInButton>
         </Button>
