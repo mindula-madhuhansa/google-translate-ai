@@ -6,12 +6,6 @@ import { auth } from "@clerk/nextjs/server";
 export const Header = () => {
   const { userId } = auth();
 
-  const url = `${
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : process.env.VERCEL_URL
-  }/translate`;
-
   return (
     <header className="flex items-center justify-between px-8 border-b mb-5">
       <div className="flex items-center justify-center overflow-hidden h-20">
@@ -31,7 +25,11 @@ export const Header = () => {
           <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
-        <SignInButton afterSignInUrl={url} afterSignUpUrl={url} mode="modal" />
+        <SignInButton
+          afterSignInUrl="/translate"
+          afterSignUpUrl="/translate"
+          mode="modal"
+        />
       )}
     </header>
   );
